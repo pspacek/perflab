@@ -35,16 +35,16 @@ collection.
 |Property| Type| Description |
 |--|--|--|
 |`_id`| `ObjectId` | The Config object's unique identifier |
-|`created`|`Date`| When this object was created |
-|`updated`|`Date`| When this object was last modified |
-|`name`|`String`| The user-specified name of this configuration |
-|`notes`|`String`| Free-form notes field |
-|`type`|`String`| The identifying name of the server type under test (e.g. `bind`)  |
+|`archived`|`Bool`| Whether this is an inactive configuration |
 |`branch`|`String`| The branch or tag name to test |
 |`client`|`String`| The identifying name of the client test traffic generator to use (e.g. `dnsperf`) |
+|`created`|`Date`| When this object was created |
+|`name`|`String`| The user-specified name of this configuration |
+|`notes`|`String`| Free-form notes field |
 |`queue`|`Object`| A nested object containing the queue settings for this configuration |
-|`archived`|`Bool`| Whether this is an inactive configuration |
 |`testsPerRun`|`Integer`| How many times to invoke the test client per test cycle |
+|`type`|`String`| The identifying name of the server type under test (e.g. `bind`)  |
+|`updated`|`Date`| When this object was last modified |
 
 #### Build and Run Properties
 
@@ -56,12 +56,12 @@ See `doc/scripts.md` for more information on script hooks.
 |--|--|--|
 |`args`|`Object`| A nested object containing arrays of additional command line parameters for each phase |
 |`flags`|`Object`| An object containing flags exposed to agents; currently the only flag `checkout` forces execution of all stages including full cleanup & rebuild before each run |
-|`preConfigure`|`String`| The path to a script to call before running `./configure` |
-|`preBuild`|`String`| The path to a script to call before running `make` |
-|`preRun`|`String`| The path to a script to call before each Run of Tests |
 |`postRun`| `String` | The path to a script to call after each Run of Tests |
-|`preTest`|`String`| The path to a script to call before each Test |
 |`postTest`|`String`| The path to a script to call after each Test |
+|`preBuild`|`String`| The path to a script to call before running `make` |
+|`preConfigure`|`String`| The path to a script to call before running `./configure` |
+|`preRun`|`String`| The path to a script to call before each Run of Tests |
+|`preTest`|`String`| The path to a script to call before each Test |
 |`wrapper`|`Object`| An array of strings to prepend to the daemon command line |
 
 NB: not all test agents support `preConfigure` and `preBuild`.
@@ -73,23 +73,23 @@ not at the top level.
 
 |Property| Type| Description |
 |--|--|--|
-|`running`|`Bool`| Whether the Config is running right now |
+|`completed`|`Date`| The last time (if ever) that a Run for this Config was completed |
 |`enabled`|`Bool`| Whether the Config is queued to run at all |
 |`priority`|`Integer`| High priority jobs run first |
 |`repeat`|`Bool`| Whether the Config should automatically be re-queued on completion |
+|`running`|`Bool`| Whether the Config is running right now |
 |`started`|`Date`| The last time (if ever) that a Run for this Config was started |
-|`completed`|`Date`| The last time (if ever) that a Run for this Config was completed |
 |`state`|`String`| An indication of the progress of the current (or last) Run |
 
 #### DNS Specific Properties
 
 |Property| Type| Description |
 |--|--|--|
+|`global`|`String`| For BIND, settings to put at the top level of `named.conf` |
 |`mode`|`String`| `authoritiative` or `recursive` |
+|`options`|`String`| For BIND, settings to put within the `options { ... }` stanza of `named.conf`
 |`queryset`|`String`| The name of the client traffic sample data set |
 |`zoneset`|`String`| The name of the authoritative zone data set |
-|`global`|`String`| For BIND, settings to put at the top level of `named.conf` |
-|`options`|`String`| For BIND, settings to put within the `options { ... }` stanza of `named.conf`
 
 ### Run Objects
 
@@ -100,16 +100,16 @@ executed.
 |Property| Type| Description |
 |--|--|--|
 |`_id`| `ObjectId` | The Run object's unique identifier |
+|`commit`|`String`| The last VCS commit message for the server |
+|`completed`|`Date`| When this Run completed execution |
 |`config_id`|`ObjectId` | The ID of the Config object that this run is associated with |
 |`created`|`Date`| When this Run was created |
-|`updated`|`Date`| When this Run was last modified |
-|`completed`|`Date`| When this Run completed execution |
-|`commit`|`String`| The last VCS commit message for the server |
-|`version`|`String`| The version string reported by the server |
-|`stdout`|`String`| The accumulated `stdout` of all build and execution phases |
-|`stderr`|`String`| The accumulated `stderr` of all build and execution phases |
-|`status`|`Integer`| The exit (status) code returned by the server |
 |`stats`|`Object`| The `min`, `max`, `count`, `stddev` and `average` test results |
+|`status`|`Integer`| The exit (status) code returned by the server |
+|`stderr`|`String`| The accumulated `stderr` of all build and execution phases |
+|`stdout`|`String`| The accumulated `stdout` of all build and execution phases |
+|`updated`|`Date`| When this Run was last modified |
+|`version`|`String`| The version string reported by the server |
 
 ### Test Objects
 
@@ -120,15 +120,15 @@ Run is executed.
 |Property| Type| Description |
 |--|--|--|
 |`_id`| `ObjectId` | The Test object's unique identifier |
-|`run_id`| `ObjectId` | The ID of the Run object that this test is associated with  |
-|`config_id`|`ObjectId` | The ID of the Config object that this test is associated with |
-|`created`|`Date`| When this Run was created |
-|`updated`|`Date`| When this Run was last modified |
 |`completed`|`Date`| When this Run completed execution |
-|`stdout`|`String`| The accumulated `stdout` of the client test application |
-|`stderr`|`String`| The accumulated `stderr` of the client test application |
-|`status`|`Integer`| The exit (status) code returned by the client test application |
+|`config_id`|`ObjectId` | The ID of the Config object that this test is associated with |
 |`count`|`Integer`| The resulting performance metric obtained from the client test application |
+|`created`|`Date`| When this Run was created |
+|`run_id`| `ObjectId` | The ID of the Run object that this test is associated with  |
+|`status`|`Integer`| The exit (status) code returned by the client test application |
+|`stderr`|`String`| The accumulated `stderr` of the client test application |
+|`stdout`|`String`| The accumulated `stdout` of the client test application |
+|`updated`|`Date`| When this Run was last modified |
 
 ### Agent Objects
 
@@ -140,12 +140,12 @@ application's requirements.
 
 |Property| Type| Description |
 |--|--|--|
+|`canPreBuild`|`Bool`| whether this server agent supports pre-build scripts |
+|`canPreConfigure`|`Bool`| whether this server agent supports pre-configure scripts |
 |`name`|`String`| The server (or client) name |
 |`protocol`|`String`| The protocol supported (`dns`, `dhcp4`, `dhcp6`) |
 |`string`|`Object`| an object of key value pairs used for UI field labels |
 |`subtypes`|`String`| for DNS, an array of the supported server modes (`authoritative`, `recursive`) |
-|`canPreConfigure`|`Bool`| whether this server agent supports pre-configure scripts |
-|`canPreBuild`|`Bool`| whether this server agent supports pre-build scripts |
 
 ## REST API
 
